@@ -3,8 +3,11 @@ const req = require("express/lib/request");
 const res = require("express/lib/response");
 const app = express();
 const morgan = require("morgan");
-const artistRoute = require("./api/routes/artist");
-const paintingRoute = require("./api/routes/painting");
+const mongoose = require("mongoose");
+require("dotenv").config();
+const artistRoute = require("./api/routes/artistRouter");
+const paintingRoute = require("./api/routes/paintingRouter");
+
 
 // middleware for logging 
 app.use(morgan("dev"));
@@ -44,7 +47,6 @@ app.use((req, res, next)=>{
     const error = new Error("NOT FOUND!");
     error.status = 404;
     next(error);
-
 });
 
 app.use((error,req,res,next) =>{
@@ -56,5 +58,8 @@ app.use((error,req,res,next) =>{
         },
     });
 });
+
+// Connect to Mongoose DB
+mongoose.connect(process.env.mongoDBURL);
 
 module.exports = app;
