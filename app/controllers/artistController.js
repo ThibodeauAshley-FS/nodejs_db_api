@@ -3,15 +3,28 @@ const mongoose = require("mongoose");
 const Artist = require('../models/artist.js')
 
 exports.getArtist = async (req, res ) => {
-    res.status(200).json({
-        message: ""
-    });
-};
+    const artists = await Artist.find();
+    res.status(200). json({
+        data: artists,
+        metadata: {
+            method: `${req.method} - All Artist Request Made`,
+            host: req.hostname
+        }
+
+    })
+}
 
 exports.getArtistByID = async (req, res ) => {
-    res.status(200).json({
-        message: "Artist.-.POST"
-    });
+    const {id} = req.params;
+    const artist = await Artist.findById(id);
+        res.status(200). json({
+            data: artist,
+            metadata: {
+                method: `${req.method} by ID`,
+                host: req.hostname
+            }
+    
+        })
 };
 
 exports.createArtist = async (req, res ) => {
@@ -52,46 +65,24 @@ exports.createArtist = async (req, res ) => {
 
 exports.updateArtist = async (req, res ) => {
     const {id} = req.params;
-
-    const updateArtist = {
-        painting: req.body.painting,
-        artist: req.body.artist
-
-    };
-
-    Artist.updateOne({ _id: id }, {
-        $set: updateArtist
-    })
-    .then( result => {
-        res.status(200). json({
-            message: "Artist Updated!",
-            artwork: {
-                painting: req.body.painting,
-                artist: req.body.artist,
-                id: result._id,
-            },
-            metadata: {
-                method: req.method,
-                host: req.hostname
-            }
-    
-        })
-    })
-    .catch( err => {
-        console.error(err.message);
-
-        res.status(500).json({
-            error: {
-                message: err.message
-            }
-        });
+    const artist = await Artist.findByIdAndUpdate(id, req.body, {
+        new: true,
+        runValidators: true,
     });
 
-};
+    res.status(200).json({
+        data: artist,
+        status: "success ",
+        message: `${req.method} - by ID made`,
+    });
+
+}
 exports.deleteArtist = async (req, res ) => {
     const {id} = req.params;
+    await Artist.findByIdAndDelete(id);
     res.status(200).json({
-        message: "Artist.-.DELETE",
-        id: id
+        id: id,
+        status: "Success ",
+        message: `${req.method} - by ID made`,
     });
 };
