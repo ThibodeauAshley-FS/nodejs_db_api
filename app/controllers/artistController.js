@@ -79,9 +79,12 @@ exports.updateArtist = async (req, res ) => {
 }
 exports.deleteArtist = async (req, res ) => {
     const {id} = req.params;
+    const artist = await Artist.findById(id);
+    
     await Artist.findByIdAndDelete(id);
     res.status(200).json({
         id: id,
+        artist: artist,
         status: "Success ",
         message: `${req.method} - by ID made`,
     });
