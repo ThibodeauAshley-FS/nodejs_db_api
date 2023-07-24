@@ -89,27 +89,62 @@ exports.createArtist = async (req, res ) => {
 
 exports.updateArtist = async (req, res ) => {
     const {id} = req.params;
-    const artist = await Artist.findByIdAndUpdate(id, req.body, {
-        new: true,
-        runValidators: true,
-    });
+    Artist.findById(id)
+    .exec()
+    .then( artist => {
+        if (!artist){
+            console.log(painting);
+            return res.status(404).json({
+                message: messages.painting_not_found,
+            })
+        }
+       
+        findByIdAndUpdate(id, req.body, {
+            new: true,
+            runValidators: true,
+        });
 
-    res.status(200).json({
-        data: artist,
-        status: "success ",
-        message: `${req.method} - by ID made`,
+        res.status(200).json({
+            data: artist,
+            status: "success ",
+            message: `${req.method} - by ID made`,
+        });
+        
+
+    })
+    .catch( err => {
+        console.error(err.message);
+
+        res.status(500).json({
+            error: {
+                message: err.message
+            }
+        });
     });
 
 }
+
+
 exports.deleteArtist = async (req, res ) => {
     const {id} = req.params;
-    const artist = await Artist.findById(id);
-    
-    await Artist.findByIdAndDelete(id);
-    res.status(200).json({
-        id: id,
-        artist: artist,
-        status: "Success ",
-        message: `${req.method} - by ID made`,
-    });
+    Artist.findById(id)
+    .exec()
+    .then( artist => {
+        if (!artist){
+            console.log(painting);
+            return res.status(404).json({
+                message: messages.painting_not_found,
+            })
+        }
+        
+        Artist.findByIdAndDelete(id);
+        res.status(200).json({
+            id: id,
+            artist: artist,
+            status: "Success ",
+            message: `${req.method} - by ID made`,
+        });
+
+    })
+
 };

@@ -115,33 +115,65 @@ exports.createPainting = async (req, res ) =>{
 
 exports.updatePainting = async (req, res ) => {
     const {id} = req.params;
-    const painting = await Painting.findByIdAndUpdate(id, req.body, {
-        new: true,
-        runValidators: true,
-    });
+    Painting.findById(id)
+    .exec()
+    .then( painting => {
+        if (!painting){
+            console.log(painting);
+            return res.status(404).json({
+                message: messages.painting_not_found,
+            })
+        }
 
-    res.status(200).json({
-        data: painting,
-        status: "success ",
-        message: `${req.method} - by ID made`,
+        Painting.findByIdAndUpdate(id, req.body, {
+            new: true,
+            runValidators: true,
+        });
+    
+        res.status(200).json({
+            data: painting,
+            status: "success ",
+            message: `${req.method} - by ID made`,
+        });
+
+    })
+    .catch( err => {
+        console.error(err.message);
+
+        res.status(500).json({
+            error: {
+                message: err.message
+            }
+        });
     });
 
 }
 exports.deletePainting = async (req, res ) => {
     const {id} = req.params;
-
-    Painting.deleteOne({
-        _id: id
-    })
+    Painting.findById(id)
     .exec()
-    .then( result => {
-        res.status(200).json({
-            message: "Painting Deleted",
-            resquest: {
-                method: "GET",
-                url: "http://localhost:3000/painting/", id
-            }
+    .then( painting=> {
+        if (!painting){
+            console.log(painting);
+            return res.status(404).json({
+                message: messages.painting_not_found,
+            })
+        }
+
+        Painting.deleteOne({
+            _id: id
         })
+        .exec()
+        .then( result => {
+            res.status(200).json({
+                message: "Painting Deleted",
+                resquest: {
+                    method: "DELETE",
+                    url: "http://localhost:3000/painting/", id
+                }
+            })
+        })
+
     })
     .catch(err => {
         res.status(500).json({
