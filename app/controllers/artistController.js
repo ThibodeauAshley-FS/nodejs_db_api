@@ -2,6 +2,7 @@
 const mongoose = require("mongoose");
 const Artist = require('../models/artist.js');
 const painting = require("../models/painting.js");
+const messages = require("../messages/messages");
 
 
 exports.getArtist = async (req, res ) => {
@@ -18,7 +19,16 @@ exports.getArtist = async (req, res ) => {
 
 exports.getArtistByID = async (req, res ) => {
     const {id} = req.params;
-    const artist = await Artist.findById(id);
+    Artist.findById(id)
+    .exec()
+    .then(artist=> {
+        if (!artist){
+            console.log(painting);
+            return res.status(404).json({
+                message: messages.painting_not_found,
+            })
+        }
+        Artist.findById(artist)
         res.status(200). json({
             data: artist,
             metadata: {
@@ -27,6 +37,18 @@ exports.getArtistByID = async (req, res ) => {
             }
     
         })
+
+    })
+    .catch( err => {
+        console.error(err.message);
+
+        res.status(500).json({
+            error: {
+                message: err.message
+            }
+        });
+    });
+    
 };
 
 exports.createArtist = async (req, res ) => {
@@ -99,7 +121,7 @@ exports.updateArtist = async (req, res ) => {
             })
         }
        
-        findByIdAndUpdate(id, req.body, {
+        Artist.findByIdAndUpdate(id, req.body, {
             new: true,
             runValidators: true,
         });
@@ -136,7 +158,7 @@ exports.deleteArtist = async (req, res ) => {
                 message: messages.painting_not_found,
             })
         }
-        
+
         Artist.findByIdAndDelete(id);
         res.status(200).json({
             id: id,

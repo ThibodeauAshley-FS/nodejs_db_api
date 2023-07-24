@@ -37,6 +37,7 @@ exports.getPainting = async (req, res ) => {
 exports.getPaintingByID = async (req, res ) => {
     const {id} = req.params;
     Painting.findById(id)
+
     .select("name info _id")
     .populate("info")
     .exec()
